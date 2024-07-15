@@ -1,0 +1,72 @@
+{
+	"id": "f05591374f854cd6c2854ef10636b9ba",
+	"_format": "hh-sol-build-info-1",
+	"solcVersion": "0.8.26",
+	"solcLongVersion": "0.8.26+commit.8a97fa7a",
+	"input": {
+		"language": "Solidity",
+		"sources": {
+			"contracts/TransientStorage.sol": {
+				"content": "// SPDX-License-Identifier: MIT\r\n/*\r\npragma solidity ^0.8.24;\r\n\r\ninterface ITest {\r\n    function val() external view returns(uint256);\r\n    function test() external ;\r\n}\r\n\r\ncontract Callback{\r\n    uint256 public val;\r\n\r\n    fallback() external {\r\n        val = ITest(msg.sender).val();\r\n    }\r\n\r\n    function test(address target) external {\r\n        ITest(target).test();\r\n    }\r\n}\r\n\r\ncontract TestStorage{\r\n    uint256 public val;\r\n\r\n    function test() public{\r\n        val = 123;\r\n        bytes memory b = \"\";\r\n        msg.sender.call(b);\r\n    }\r\n}\r\n\r\ncontract TestTransientStorage{\r\n    bytes32 constant SLOT = 0;\r\n\r\n    function test() public {\r\n        assembly {\r\n            tstore(SLOT,321)\r\n        }\r\n        bytes memory b = \"\";\r\n        msg.sender.call(b);\r\n    }\r\n\r\n    function val() public view returns (uint256 v) {\r\n        assembly {\r\n            v := tload(SLOT)\r\n        }\r\n    }\r\n}\r\n\r\ncontract ReentrancyGuard {\r\n    bool private locked;\r\n\r\n    modifier lock() {\r\n        require(!locked);\r\n        locked = true;\r\n        _;\r\n        locked = false;\r\n    }\r\n\r\n    // 35313 gas\r\n    function test() public lock {\r\n        // Ignore call error\r\n        bytes memory b = \"\";\r\n        msg.sender.call(b);\r\n    }\r\n}\r\n\r\ncontract ReentrancyGuardTransient {\r\n    bytes32 constant SLOT = 0;\r\n\r\n    modifier lock() {\r\n        assembly {\r\n            if tload(SLOT) { revert(0, 0) }\r\n            tstore(SLOT, 1)\r\n        }\r\n        _;\r\n        assembly {\r\n            tstore(SLOT, 0)\r\n        }\r\n    }\r\n\r\n    // 21887 gas\r\n    function test() external lock {\r\n        // Ignore call error\r\n        bytes memory b = \"\";\r\n        msg.sender.call(b);\r\n    }\r\n}\r\n*/"
+			}
+		},
+		"settings": {
+			"optimizer": {
+				"enabled": false,
+				"runs": 200
+			},
+			"outputSelection": {
+				"*": {
+					"": [
+						"ast"
+					],
+					"*": [
+						"abi",
+						"metadata",
+						"devdoc",
+						"userdoc",
+						"storageLayout",
+						"evm.legacyAssembly",
+						"evm.bytecode",
+						"evm.deployedBytecode",
+						"evm.methodIdentifiers",
+						"evm.gasEstimates",
+						"evm.assembly"
+					]
+				}
+			},
+			"remappings": []
+		}
+	},
+	"output": {
+		"errors": [
+			{
+				"component": "general",
+				"errorCode": "3420",
+				"formattedMessage": "Warning: Source file does not specify required compiler version! Consider adding \"pragma solidity ^0.8.26;\"\n--> contracts/TransientStorage.sol\n\n",
+				"message": "Source file does not specify required compiler version! Consider adding \"pragma solidity ^0.8.26;\"",
+				"severity": "warning",
+				"sourceLocation": {
+					"end": -1,
+					"file": "contracts/TransientStorage.sol",
+					"start": -1
+				},
+				"type": "Warning"
+			}
+		],
+		"sources": {
+			"contracts/TransientStorage.sol": {
+				"ast": {
+					"absolutePath": "contracts/TransientStorage.sol",
+					"exportedSymbols": {},
+					"id": 1,
+					"license": "MIT",
+					"nodeType": "SourceUnit",
+					"nodes": [],
+					"src": "1673:0:0"
+				},
+				"id": 0
+			}
+		}
+	}
+}
